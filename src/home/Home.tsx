@@ -54,12 +54,12 @@ export default interface AvatarStatusResponse {
 }
 
 export function Home() {
-  const [xHandle, setXHandle] = useState<string | null>();
+  const [gistHandle, setXGistHandle] = useState<string | null>();
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [proofPayloadResponse, setProofPayloadResponse] = useState<ProofPayloadResponse | null>();
-  const [firstLineTweet, setFirstLineTweet] = useState<string | null>(null);
-  const [signedMessageBase64Tweet, setSignedMessageBase64Tweet] = useState<string | null>(null);
-  const [lastLineTweet, setLastLineTweet] = useState<string | null>(null);
+  const [firstLineTweet, setFirstLineGist] = useState<string | null>(null);
+  const [signedMessageBase64Tweet, setSignedMessageBase64Gist] = useState<string | null>(null);
+  const [lastLineTweet, setLastLineGist] = useState<string | null>(null);
   const [tweetNumber, setTweetNumber] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string | null>();
   const [verifiedProof, setVerifiedProof] = useState<boolean>(false);
@@ -70,7 +70,7 @@ export function Home() {
   const { open, close } = useWeb3Modal();
 
   const getProofPayloadResponse =
-    async (twitterHandle: string, publicKey: string): Promise<ProofPayloadResponse> => {
+    async (githubUsername: string, publicKey: string): Promise<ProofPayloadResponse> => {
       const baseUrl = process.env.REACT_APP_PROOF_SERVICE_BASE_URL;
 
       if (!baseUrl) {
@@ -88,8 +88,8 @@ export function Home() {
       const request =
       {
         "action": "create",
-        "platform": "twitter",
-        "identity": twitterHandle,
+        "platform": "github",
+        "identity": githubUsername,
         "public_key": publicKey
       };
 
@@ -107,8 +107,9 @@ export function Home() {
 
   const getNextIdProofPayload =
     async (
-      twitterHandle: string
+      githubUsername: string
     ): Promise<ProofPayloadResponse> => {
+
       const message = 'next.id rocks';
       const signature = await signMessage({ message: message });
       const messageHash = hashMessage(message);
@@ -124,29 +125,29 @@ export function Home() {
       setPublicKey(recoveredPublicKey);
 
       const proofPayloadResponse: ProofPayloadResponse =
-        await getProofPayloadResponse(twitterHandle, recoveredPublicKey);
+        await getProofPayloadResponse(githubUsername, recoveredPublicKey);
 
       console.log('recoveredPublicKey', recoveredPublicKey);
       console.log('proofPayloadResponse', proofPayloadResponse);
       return proofPayloadResponse;
     }
 
-  const createTweet = (
-    signedMessage: string | undefined, proofPayloadResponse: ProofPayloadResponse
-  ): { firstLine: string, signedMessageBase64: string, lastLine: string } | null => {
-    if (signedMessage) {
-      const signedMessageBase64 = signedMessage;
-      console.log('signedMessageBase64[', signedMessageBase64);
-      const firstLine = `🎭 Verifying my Twitter ID @${xHandle} for @NextDotID.`;
-      const lastLine = 'Next.ID YOUR DIGITAL IDENTITIES IN ONE PLACE';
-      return { firstLine, signedMessageBase64, lastLine };
+    const createGistContent = (
+      signedMessage: string | undefined, proofPayloadResponse: ProofPayloadResponse,githubUsername: string
+    ): { firstLine: string, signedMessageBase64: string, lastLine: string } | null => {
+      if (signedMessage) {
+        const signedMessageBase64 = signedMessage;
+        console.log('signedMessageBase64[', signedMessageBase64);
+        const firstLine = `🎭 Verifying my Github ID @${githubUsername} for @NextDotID.`;
+        const lastLine = 'Next.ID YOUR DIGITAL IDENTITIES IN ONE PLACE';
+        return { firstLine, signedMessageBase64, lastLine };
+      }
+      else {
+        return null;
+      }
     }
-    else {
-      return null;
-    }
-  }
 
-  const buildDataForTweet = async (proofPayloadResponse: ProofPayloadResponse) => {
+  const buildDataForGist = async (proofPayloadResponse: ProofPayloadResponse,githubUsername: string) => {
     if (!proofPayloadResponse) {
       throw Error('proofPayloadResponse not populated');
     }
@@ -160,18 +161,20 @@ export function Home() {
     console.log('base64String', base64String);
 
     const result: { firstLine: string, signedMessageBase64: string, lastLine: string } | null =
-      createTweet(base64String, proofPayloadResponse);
+    createGistContent(base64String, proofPayloadResponse, githubUsername);
 
     if (result) {
       const { firstLine, signedMessageBase64, lastLine } = result;
-      setFirstLineTweet(firstLine);
-      setSignedMessageBase64Tweet(signedMessageBase64);
-      setLastLineTweet(lastLine);
+      
+
+      setFirstLineGist(firstLine);
+    setSignedMessageBase64Gist(signedMessageBase64);
+    setLastLineGist(lastLine);
     }
   }
-
+//
   const next = async () => {
-    if (xHandle) {
+    if (githubUsername) {
       const proofPayloadResponse: ProofPayloadResponse =
         await getNextIdProofPayload(xHandle);
 
