@@ -6,7 +6,7 @@
 
 Next.id has API which allow you to associate social medial handles with a Decentralised ID (DID).
 
-This is example code showing how to associate a twitter X social media handle with a next.id DID.
+This is example code showing how to associate a github social media handle with a next.id DID.
 
 Note next.id calls your DID an avatar.
 
