@@ -54,7 +54,7 @@ export default interface AvatarStatusResponse {
 }
 
 export function Home() {
-  const [gistHandle, setXGistHandle] = useState<string | null>();
+  const [githubUsername, setXGistHandle] = useState<string | null>();
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [proofPayloadResponse, setProofPayloadResponse] = useState<ProofPayloadResponse | null>();
   const [firstLineTweet, setFirstLineGist] = useState<string | null>(null);
@@ -176,11 +176,11 @@ export function Home() {
   const next = async () => {
     if (githubUsername) {
       const proofPayloadResponse: ProofPayloadResponse =
-        await getNextIdProofPayload(xHandle);
+        await getNextIdProofPayload(githubUsername);
 
       console.log('proofPayloadResponse', proofPayloadResponse);
       setProofPayloadResponse(proofPayloadResponse);
-      await buildDataForTweet(proofPayloadResponse);
+      await buildDataForGist(proofPayloadResponse,githubUsername);
     }
   }
 
