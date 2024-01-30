@@ -1,6 +1,6 @@
 # README
 
-**NOTE:**  Update 29/01/2024 This code is not complete. I am still working on it
+**NOTE:**  Update 30/01/2024 This code is not complete. We are still working on it. Elgar & JD.
 
 ## What is this project about?
 
