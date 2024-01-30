@@ -54,13 +54,13 @@ export default interface AvatarStatusResponse {
 }
 
 export function Home() {
-  const [githubUsername, setXGistHandle] = useState<string | null>();
+  const [githubUsername, setGithubUsername] = useState<string | null>();
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [proofPayloadResponse, setProofPayloadResponse] = useState<ProofPayloadResponse | null>();
   const [firstLineTweet, setFirstLineGist] = useState<string | null>(null);
   const [signedMessageBase64Tweet, setSignedMessageBase64Gist] = useState<string | null>(null);
   const [lastLineTweet, setLastLineGist] = useState<string | null>(null);
-  const [tweetNumber, setTweetNumber] = useState<string>();
+  const [gistId, setGistId] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string | null>();
   const [verifiedProof, setVerifiedProof] = useState<boolean>(false);
   const [avatarStatusResponse, setAvatarStatusResponse] = useState<AvatarStatusResponse | null>(null);
@@ -185,9 +185,9 @@ export function Home() {
   }
 
   const verifyProof = async (
-    xHandle: string,
+    githubUsername: string,
     publicKey: string,
-    numberAtEndTweetUrl: string,
+    numberAtEndGistUrl: string,
     uuid: string
   ): Promise<void> => {
 
@@ -195,7 +195,7 @@ export function Home() {
       const errrorMessage =
         'Expecting all of these to be populated: ' +
         `proofPayloadResponse: ${proofPayloadResponse}, ` +
-        `xHandle: ${xHandle}, publicKey: ${publicKey}`;
+        `githubUsername: ${githubUsername}, publicKey: ${publicKey}`;
 
       throw new Error(errrorMessage);
     }
@@ -220,9 +220,9 @@ export function Home() {
     {
       "action": "create",
       "platform": "twitter",
-      "identity": xHandle,
+      "identity": githubUsername,
       "public_key": publicKey,
-      "proof_location": numberAtEndTweetUrl,
+      "proof_location": numberAtEndGistUrl,
       "extra": {},
       "uuid": uuid,
       "created_at": createdAt
@@ -239,9 +239,9 @@ export function Home() {
 
   const getAvatarStatus = async () => {
     const baseUrl = process.env.REACT_APP_PROOF_SERVICE_BASE_URL;
-    const platform = 'twitter';
+    const platform = 'github';
     const exact = true;
-    const url = `${baseUrl}/v1/proof?platform=${platform}&identity=${xHandle}&exact=${exact}`;
+    const url = `${baseUrl}/v1/proof?platform=${platform}&identity=${githubUsername}&exact=${exact}`;
 
     const config = {
       headers: {
@@ -260,12 +260,12 @@ export function Home() {
   }
 
   const verify = async () => {
-    if (tweetNumber) {
-      if (!proofPayloadResponse || !xHandle || !publicKey) {
+    if (gistId) {
+      if (!proofPayloadResponse || !githubUsername || !publicKey) {
         const errrorMessage =
           'Expecting all of these to be populated: ' +
           `proofPayloadResponse: ${proofPayloadResponse}, ` +
-          `xHandle: ${xHandle}, publicKey: ${publicKey}`;
+          `githubUsername: ${githubUsername}, publicKey: ${publicKey}`;
 
         throw new Error(errrorMessage);
       }
@@ -273,19 +273,19 @@ export function Home() {
       const uuid = proofPayloadResponse?.uuid;
 
       try {
-        await verifyProof(xHandle, publicKey, tweetNumber, uuid);
+        await verifyProof(githubUsername, publicKey, gistId, uuid);
         setVerifiedProof(true);
       }
       catch (error) {
         setVerifiedProof(false);
         setErrorMessage(
-          'Tweet did not pass validation. The twitter handle was not added to your next.id DID');
+          'the gist did not pass validation. The github username was not added to your next.id DID');
       }
     }
   }
 
   const clear = () => {
-    setXHandle(null);
+    setGithubUsername(null);
     setAvatarStatusResponse(null);
   }
 
@@ -355,17 +355,17 @@ export function Home() {
             {lastLineTweet}
           </div >
           <div style={{ paddingTop: '20px' }}>
-            Once you have sent the tweet. Click the share tweet, and paste the id number in the
-            tweet url into the box below and press the Verify Button.
+            Once you have sent the gist. Click the gist link, and paste the id number in the
+            gist url into the box below and press the Verify Button.
           </div>
           <div style={{ paddingTop: '20px' }}>
             <input
               style={{ width: '250px' }}
               className={appStyle.input}
-              placeholder="Tweet Number"
-              value={tweetNumber} onChange={(event) => setTweetNumber(event.target.value)} />
+              placeholder="Gist Number"
+              value={gistId} onChange={(event) => setGistId(event.target.value)} />
             &nbsp;&nbsp;
-            <button className={appStyle.button} disabled={xHandle?.length == 0}
+            <button className={appStyle.button} disabled={githubUsername?.length == 0}
               onClick={verify}>Verify</button>
           </div>
           {getDIDAddedJSX()}
