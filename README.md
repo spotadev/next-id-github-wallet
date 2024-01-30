@@ -1,6 +1,6 @@
 # README
 
-**NOTE:**  Update 29/01/2024 This code is not complete .I am still working on it
+**NOTE:**  Update 29/01/2024 This code is not complete. I am still working on it
 
 ## What is this project about?
 
@@ -15,35 +15,29 @@ manage their own private key.
 
 The public key is recovered from meta mask using the viem library.
 
-The viem library also signs the verify payload response to produce the data required to build the
-twitter tweet.  Once the tweet has been sent manually by the user, they click share and get the
-tweet number from the URL.  They paste that number in a box so that the tweet can be verified.
 
 So the user steps are:
 
-(i) Paste twitter X handle into the box without the @ symbol
+(i) Paste github handle into the box
 
 (ii) Press Next
 
 (iv) Meta Mask will pop up a couple of times asking to sign stuff
 
-(v) The text to paste into a tweet will be shown.
+(v) There are cut down repositories in github called gists.  The GUI generates a suitably named
+    json file the user can save to their drive and upload to the gist repository.
 
-(vi) Paste the twitter text into a tweet and send it.
+(vi) Once the file is uploaded a number corresponding to the gist is pasted in a form by the user
+     to validate that the wallet address user also is the one controlling the gist.  This verifies
+     that the DID includes the github handle.
 
-(vii) Click Share for the tweet and take the ID from the URL and paste it in the box.  Then press
-      verify.
-
-  If all is well you will be shown a message that the x handle was added to your DID.
+  If all is well the user is shown a message that the github handle was added to their DID.
 
   Else you will be shown an error message.
 
 ## Screen shots
 
-![App Screen Shot](doc_images/screenshot_1.png)  
-
-![App Screen Shot](doc_images/screenshot_2.png)
-
+@todo
 
 ## Instructions
 
@@ -101,91 +95,13 @@ Open in browser:
 
 ### Browser instructions
 
-(i) Paste twitter X handle into the box without the @ symbol
-
-(ii) Press Next
-
-(iv) Meta Mask will pop up a couple of times asking to sign stuff
-
-(v) The text to paste into a tweet will be shown.
-
-(vi) Paste the twitter text into a tweet and send it.
-
-(vii) Click Share for the tweet and take the ID from the URL and paste it in the box.  Then press
-      verify.
-
-  If all is well you will be shown a message that the x handle was added to your DID.
-
-  Else you will be shown an error message.
+@todo
 
 ## Example Payloads
 
 ### Getting Payload
 
-This is about getting the data we need to build a tweet:
-
-POST: https://proof-service.nextnext.id/v1/proof/payload 
-
-Payload: 
-
-```
-{
-    "action": "create",
-    "platform": "twitter",
-    "identity": "JohnDic94329223",
-    "public_key": "0x046ca64e70760e7635e10161095693abb08e9548ff84bed952fc08ce3ccc196736383d1673f699625e78080b9072d433bbac69e8f81d3430d9746615b69d9e9924"
-}
-```
-
-Response:
-
-```
-{
-    "post_content": {
-        "default": "🎭 Verify @JohnDic94329223 with @NextDotID.\nSig: %SIG_BASE64%\nMisc: 6f1fa69c-13f8-4bec-acf6-c24003633df8|1705413052|",
-        "en_US": "🎭 Verify @JohnDic94329223 with @NextDotID.\nSig: %SIG_BASE64%\nMisc: 6f1fa69c-13f8-4bec-acf6-c24003633df8|1705413052|",
-        "zh_CN": "🎭 由 @NextDotID 验证 @JohnDic94329223 。\nSig: %SIG_BASE64%\n其它信息: 6f1fa69c-13f8-4bec-acf6-c24003633df8|1705413052|"
-    },
-    "sign_payload": "{\"action\":\"create\",\"created_at\":\"1705413052\",\"identity\":\"johndic94329223\",\"platform\":\"twitter\",\"prev\":null,\"uuid\":\"6f1fa69c-13f8-4bec-acf6-c24003633df8\"}",
-    "uuid": "6f1fa69c-13f8-4bec-acf6-c24003633df8",
-    "created_at": "1705413052"
-}
-```
-&nbsp;
-
-### Getting Proof
-
-This is about verifying the posting of tweet. Note the proof_location is the ID in the tweet url
-of your tweet.
-
-POST: https://proof-service.nextnext.id/v1/proof
-
-Payload:
-
-```
-{
-    "action": "create",
-    "platform": "twitter",
-    "identity": "JohnDic94329223",
-    "public_key": "0x046ca64e70760e7635e10161095693abb08e9548ff84bed952fc08ce3ccc196736383d1673f699625e78080b9072d433bbac69e8f81d3430d9746615b69d9e9924",
-    "proof_location": "1747255272501018668",
-    "extra": {},
-    "uuid": "6f1fa69c-13f8-4bec-acf6-c24003633df8",
-    "created_at": "1705413052"
-}
-```
-
-Status of Response: 201 created
-
-Response:
-```
-{}
-```
-
-Note:
-
-* The created_at came from the response of the previous post to: https://proof-service.nextnext.id/v1/proof/payload 
-
+@todo
 
 ## How to contact the owner of this repository
 
@@ -233,7 +149,8 @@ The social media platform has 2 variants:
 
 ---
 
-You can also get involved with UTU Trust.  UTU Trust has bounty programmes for involving the community.
+You can also get involved with UTU Trust.  UTU Trust has bounty programmes for involving the 
+community.
 
 ---
 
