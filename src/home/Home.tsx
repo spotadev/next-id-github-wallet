@@ -57,9 +57,6 @@ export function Home() {
   const [githubHandle, setGithubHandle] = useState<string | null>();
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [proofPayloadResponse, setProofPayloadResponse] = useState<ProofPayloadResponse | null>();
-  const [firstLineTweet, setFirstLineGist] = useState<string | null>(null);
-  const [signedMessageBase64Tweet, setSignedMessageBase64Gist] = useState<string | null>(null);
-  const [lastLineTweet, setLastLineGist] = useState<string | null>(null);
   const [gistId, setGistId] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string | null>();
   const [verifiedProof, setVerifiedProof] = useState<boolean>(false);
@@ -132,55 +129,45 @@ export function Home() {
       return proofPayloadResponse;
     }
 
-  const createGistContent = (
-    signedMessage: string | undefined, proofPayloadResponse: ProofPayloadResponse, githubHandle: string
-  ): { firstLine: string, signedMessageBase64: string, lastLine: string } | null => {
-    if (signedMessage) {
-      const signedMessageBase64 = signedMessage;
-      console.log('signedMessageBase64[', signedMessageBase64);
-      const firstLine = `🎭 Verifying my Github ID @${githubHandle} for @NextDotID.`;
-      const lastLine = 'Next.ID YOUR DIGITAL IDENTITIES IN ONE PLACE';
-      return { firstLine, signedMessageBase64, lastLine };
-    }
-    else {
-      return null;
-    }
-  }
+  const downloadJsonFile = async () => {
 
-  const buildDataForGist = async (proofPayloadResponse: ProofPayloadResponse, githubHandle: string) => {
-    if (!proofPayloadResponse) {
-      throw Error('proofPayloadResponse not populated');
-    }
-
-    const message = proofPayloadResponse.sign_payload;
-    const signedPayload = await signMessage({ message: message });
-    console.log('signedPayload', signedPayload);
-    const signatureWithoutPrefix = signedPayload.slice(2);
-    const buffer = Buffer.from(signatureWithoutPrefix, 'hex');
-    const base64String = buffer.toString('base64');
-    console.log('base64String', base64String);
-
-    const result: { firstLine: string, signedMessageBase64: string, lastLine: string } | null =
-      createGistContent(base64String, proofPayloadResponse, githubHandle);
-
-    if (result) {
-      const { firstLine, signedMessageBase64, lastLine } = result;
-
-
-      setFirstLineGist(firstLine);
-      setSignedMessageBase64Gist(signedMessageBase64);
-      setLastLineGist(lastLine);
-    }
-  }
-  //
-  const next = async () => {
     if (githubHandle) {
       const proofPayloadResponse: ProofPayloadResponse =
         await getNextIdProofPayload(githubHandle);
 
       console.log('proofPayloadResponse', proofPayloadResponse);
       setProofPayloadResponse(proofPayloadResponse);
-      await buildDataForGist(proofPayloadResponse, githubHandle);
+
+      /**
+          {
+            "post_content": {
+              "default": "{\n\t\"version\": \"1\",\n\t\"comment\": \"Here's an NextID proof of this Github account.\",\n\t\"comment2\": \"To validate, base64.decode the signature, and recover pubkey from it using sign_payload with ethereum personal_sign algo.\",\n\t\"persona\": \"0x0392d05e7a3b772333bd9c695900e9703afc797a4afe2a15feba81263311c397b4\",\n\t\"github_username\": \"javaspeak\",\n\t\"sign_payload\": \"{\\\"action\\\":\\\"create\\\",\\\"created_at\\\":\\\"1706699415\\\",\\\"identity\\\":\\\"javaspeak\\\",\\\"platform\\\":\\\"github\\\",\\\"prev\\\":\\\"sJnG5FiWP7VdvwdBVqRskiHyB1R0PFUiYjsHF9bYBm5kvRz09w0JNkmG/ewnplZ2gjobo4pvOyzZMDXo2TcXIQA=\\\",\\\"uuid\\\":\\\"0d65c2c5-cefa-43bb-8725-6bb54b1baa7f\\\"}\",\n\t\"signature\": \"%SIG_BASE64%\",\n\t\"created_at\": \"1706699415\",\n\t\"uuid\": \"0d65c2c5-cefa-43bb-8725-6bb54b1baa7f\"\n}"
+            },
+            "sign_payload": "{\"action\":\"create\",\"created_at\":\"1706699415\",\"identity\":\"javaspeak\",\"platform\":\"github\",\"prev\":\"sJnG5FiWP7VdvwdBVqRskiHyB1R0PFUiYjsHF9bYBm5kvRz09w0JNkmG/ewnplZ2gjobo4pvOyzZMDXo2TcXIQA=\",\"uuid\":\"0d65c2c5-cefa-43bb-8725-6bb54b1baa7f\"}",
+              "uuid": "0d65c2c5-cefa-43bb-8725-6bb54b1baa7f",
+                "created_at": "1706699415"
+          }
+          */
+
+      /**
+      {
+        "version": "1",
+        "comment": "Here's an NextID proof of this Github account.",
+        "comment2": "To validate, base64.decode the signature, and recover pubkey from it using sign_payload with ethereum personal_sign algo.",
+        "persona": "0x03947957e8a8785b6520b96c1c0d70ae9cf59835eec18f9ac920bbf5733413366a",
+        "github_username": "nykma",
+        "sign_payload": "{\"action\":\"create\",\"created_at\":\"1647329242\",\"identity\":\"nykma\",\"platform\":\"github\",\"prev\":null,\"uuid\":\"ea7279e4-b00c-4447-b784-c8f45895fdc8\"}",
+        "signature": "p4kb/P2uuKCU40zZTs+jk6/ARAO5ZcXErvJU/8oXNVt3+b6SUzpauBW6wNT2N8fwQeXYGgFHCTEGon4qZbK3IQE=",
+        "created_at": "1647329242",
+        "uuid": "ea7279e4-b00c-4447-b784-c8f45895fdc8"
+      }
+       */
+
+      // Steps - we need to recover the public key so we can get the file name of the json file
+
+
+
+
     }
   }
 
@@ -332,11 +319,6 @@ export function Home() {
     else {
       return '';
     }
-  }
-
-  const downloadJsonFile = () => {
-
-
   }
 
   const getGithubJSX = () => {
