@@ -5,6 +5,7 @@ import axios from 'axios';
 import appStyle from '../App.module.css';
 import { hashMessage, recoverPublicKey } from 'viem';
 import { signMessage } from '@wagmi/core'
+import exportFromJSON from "export-from-json";
 
 export interface PostContent {
   default: string;
@@ -138,6 +139,39 @@ export function Home() {
       console.log('proofPayloadResponse', proofPayloadResponse);
       setProofPayloadResponse(proofPayloadResponse);
 
+      // Steps - we need to recover the public key so we can get the file name of the json file
+      const message = proofPayloadResponse.sign_payload;
+      const signature = await signMessage({ message: message });
+      const messageHash = hashMessage(message);
+
+      const recoveredPublicKey = await recoverPublicKey({
+        hash: messageHash,
+        signature: signature
+      })
+
+      console.log('message', message);
+      console.log('signature', signature);
+      console.log('messageHash', messageHash);
+      console.log('recoveredPublicKey', recoveredPublicKey);
+
+      const data = proofPayloadResponse;
+      const fileName = recoveredPublicKey + '.json';
+      const exportType = exportFromJSON.types.json;
+
+      exportFromJSON({ data, fileName, exportType });
+
+      /** 
+      This is nyk's filename: 
+      
+      0x03947957e8a8785b6520b96c1c0d70ae9cf59835eec18f9ac920bbf5733413366a.json
+      
+      This is mine:
+
+      0x0492d05e7a3b772333bd9c695900e9703afc797a4afe2a15feba81263311c397b47406fe9b775d6f3b468c0a9f4f68e3b6e332809347b534838ad4e249160551ed..json
+
+      So there is a problem here which needs resolving
+      */
+
       /**
           {
             "post_content": {
@@ -162,12 +196,6 @@ export function Home() {
         "uuid": "ea7279e4-b00c-4447-b784-c8f45895fdc8"
       }
        */
-
-      // Steps - we need to recover the public key so we can get the file name of the json file
-
-
-
-
     }
   }
 
@@ -322,67 +350,64 @@ export function Home() {
   }
 
   const getGithubJSX = () => {
-    if (proofPayloadResponse) {
-      return (
-        <>
-          <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
-            Github Instructions:
-          </p>
-          <div>
-            Generate Gist File - IN PROGRESS
-          </div>
-          <div style={{ paddingTop: '20px' }}>
-            Github has a cut down version of Github repositories called Gist Repositories.
-          </div>
-          <div style={{ paddingTop: '20px' }}>
-            See here for further information about Gist Repositories:
-            <br /><br />
-            <a href="https://www.youtube.com/watch?v=xl004KsPKGE" target="_new">Youtube: What is GitHub Gist? Let's learn!</a>
-            <br /><br />
-            <a href="https://gist.github.com/" target="_new">https://gist.github.com/</a>
-          </div >
-          <div style={{ paddingTop: '20px' }}>
-            Enter you Github Handle into the box and then first all click the "Check if DID exists"
-            to see if you have already added your github handle to a DID.  If you have not click the
-            Download button to generate a json file which you can add to a gist repository.  Note
-            you will be prompted by your wallet to sign content.
-          </div>
-          <div style={{ paddingTop: '20px' }}>
-            <input
-              className={appStyle.input}
-              placeholder="Enter: Github Handle (mandatory)"
-              value={githubHandle ? githubHandle : ''} onChange={(event) => setGithubHandle(event.target.value)} />
-            &nbsp;
-            <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={getAvatarStatus}>Check if DID exists</button>
-            &nbsp;
-            <button className={appStyle.button} onClick={downloadJsonFile}>Download json file</button>
-            &nbsp;
-            <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={clear}>Clear</button>
-          </div>
-          {getAvatarStatusJSX()}
-          <div style={{ paddingTop: '20px' }}>
-            Once you have downloaded the json file, create a gist repository and add the json file
-            to it.  Note the name of the json file has the public key in it and the contents of
-            the File contain proof information.  Once the download json file has been added to your
-            gist repository, extract the number in the url of your gist repository and add it in
-            the box below.  Then press the Verify button.  You will be told if the github handle
-            was successfully added to the DID or not.
-          </div>
-          <div style={{ paddingTop: '20px' }}>
-            <input
-              style={{ width: '250px' }}
-              className={appStyle.input}
-              placeholder="Gist Number"
-              value={gistId} onChange={(event) => setGistId(event.target.value)} />
-            &nbsp;&nbsp;
-            <button className={appStyle.button} disabled={githubHandle?.length == 0}
-              onClick={verify}>Verify</button>
-          </div>
-          {getDIDAddedJSX()}
-        </>
-      );
-    }
-    return '';
+    return (
+      <>
+        <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
+          Github Instructions:
+        </p>
+        <div>
+          Generate Gist File - IN PROGRESS
+        </div>
+        <div style={{ paddingTop: '20px' }}>
+          Github has a cut down version of Github repositories called Gist Repositories.
+        </div>
+        <div style={{ paddingTop: '20px' }}>
+          See here for further information about Gist Repositories:
+          <br /><br />
+          <a href="https://www.youtube.com/watch?v=xl004KsPKGE" target="_new">Youtube: What is GitHub Gist? Let's learn!</a>
+          <br /><br />
+          <a href="https://gist.github.com/" target="_new">https://gist.github.com/</a>
+        </div >
+        <div style={{ paddingTop: '20px' }}>
+          Enter you Github Handle into the box and then first all click the "Check if DID exists"
+          to see if you have already added your github handle to a DID.  If you have not click the
+          Download button to generate a json file which you can add to a gist repository.  Note
+          you will be prompted by your wallet to sign content.
+        </div>
+        <div style={{ paddingTop: '20px' }}>
+          <input
+            className={appStyle.input}
+            placeholder="Enter: Github Handle (mandatory)"
+            value={githubHandle ? githubHandle : ''} onChange={(event) => setGithubHandle(event.target.value)} />
+          &nbsp;
+          <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={getAvatarStatus}>Check if DID exists</button>
+          &nbsp;
+          <button className={appStyle.button} onClick={downloadJsonFile}>Download json file</button>
+          &nbsp;
+          <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={clear}>Clear</button>
+        </div>
+        {getAvatarStatusJSX()}
+        <div style={{ paddingTop: '20px' }}>
+          Once you have downloaded the json file, create a gist repository and add the json file
+          to it.  Note the name of the json file has the public key in it and the contents of
+          the File contain proof information.  Once the download json file has been added to your
+          gist repository, extract the number in the url of your gist repository and add it in
+          the box below.  Then press the Verify button.  You will be told if the github handle
+          was successfully added to the DID or not.
+        </div>
+        <div style={{ paddingTop: '20px' }}>
+          <input
+            style={{ width: '250px' }}
+            className={appStyle.input}
+            placeholder="Gist Number"
+            value={gistId} onChange={(event) => setGistId(event.target.value)} />
+          &nbsp;&nbsp;
+          <button className={appStyle.button} disabled={githubHandle?.length == 0}
+            onClick={verify}>Verify</button>
+        </div>
+        {getDIDAddedJSX()}
+      </>
+    );
   }
 
   const getAvatarStatusJSX = () => {
