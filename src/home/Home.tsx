@@ -334,6 +334,11 @@ export function Home() {
     }
   }
 
+  const downloadJsonFile = () => {
+
+
+  }
+
   const getGithubJSX = () => {
     if (proofPayloadResponse) {
       return (
@@ -348,32 +353,38 @@ export function Home() {
             Github has a cut down version of Github repositories called Gist Repositories.
           </div>
           <div style={{ paddingTop: '20px' }}>
-            See here for further information about Gist Repositories: &nbsp;
-            <a href="">Gist Repositories</a>
-          </div >
-          <div style={{ paddingTop: '20px' }}>
-            Click the Download button to generate a json file which you can add to a gist
-            repository.  Note you will be prompted by your wallet to sign content.
-          </div>
-          <div style={{ paddingTop: '20px' }}>
-            <button className={appStyle.button}>Download json file</button>
-          </div>
-          {/* 
-          <div style={{ marginTop: '20px', backgroundColor: 'lightgreen', wordWrap: 'break-word', padding: '10px' }}>
-            {firstLineTweet}
-            <br />
-            Sig: {signedMessageBase64Tweet}
+            See here for further information about Gist Repositories:
             <br /><br />
-            {lastLineTweet}
+            <a href="https://www.youtube.com/watch?v=xl004KsPKGE" target="_new">Youtube: What is GitHub Gist? Let's learn!</a>
+            <br /><br />
+            <a href="https://gist.github.com/" target="_new">https://gist.github.com/</a>
           </div >
-          */}
-
+          <div style={{ paddingTop: '20px' }}>
+            Enter you Github Handle into the box and then first all click the "Check if DID exists"
+            to see if you have already added your github handle to a DID.  If you have not click the
+            Download button to generate a json file which you can add to a gist repository.  Note
+            you will be prompted by your wallet to sign content.
+          </div>
+          <div style={{ paddingTop: '20px' }}>
+            <input
+              className={appStyle.input}
+              placeholder="Enter: Github Handle (mandatory)"
+              value={githubHandle ? githubHandle : ''} onChange={(event) => setGithubHandle(event.target.value)} />
+            &nbsp;
+            <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={getAvatarStatus}>Check if DID exists</button>
+            &nbsp;
+            <button className={appStyle.button} onClick={downloadJsonFile}>Download json file</button>
+            &nbsp;
+            <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={clear}>Clear</button>
+          </div>
+          {getAvatarStatusJSX()}
           <div style={{ paddingTop: '20px' }}>
             Once you have downloaded the json file, create a gist repository and add the json file
             to it.  Note the name of the json file has the public key in it and the contents of
             the File contain proof information.  Once the download json file has been added to your
             gist repository, extract the number in the url of your gist repository and add it in
-            the box below.  Then press the Verify button.
+            the box below.  Then press the Verify button.  You will be told if the github handle
+            was successfully added to the DID or not.
           </div>
           <div style={{ paddingTop: '20px' }}>
             <input
@@ -488,25 +499,6 @@ export function Home() {
         Click on the button below to connect your Meta Mask wallet:
       </p>
       {getConnectWalletJSX()}
-
-      <div style={{ fontWeight: 'bold', paddingTop: '20px' }}>Enter Github Handle Instructions:</div>
-      <p>
-        Once you are connected above, enter your Github handle and press a button
-        and press Next.
-      </p>
-      <p>
-        <input
-          className={appStyle.input}
-          placeholder="Enter: Github Handle (mandatory)"
-          value={githubHandle ? githubHandle : ''} onChange={(event) => setGithubHandle(event.target.value)} />
-        &nbsp;&nbsp;
-        <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={getAvatarStatus}>Check if DID exists</button>
-        &nbsp;&nbsp;
-        <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={next}>Add Github Handle to DID</button>
-        &nbsp;&nbsp;
-        <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={clear}>Clear</button>
-      </p>
-      {getAvatarStatusJSX()}
       {getGithubJSX()}
     </div>
   );
