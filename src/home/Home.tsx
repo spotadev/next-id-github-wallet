@@ -54,7 +54,7 @@ export default interface AvatarStatusResponse {
 }
 
 export function Home() {
-  const [githubUsername, setGithubUsername] = useState<string | null>();
+  const [githubHandle, setGithubHandle] = useState<string | null>();
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [proofPayloadResponse, setProofPayloadResponse] = useState<ProofPayloadResponse | null>();
   const [firstLineTweet, setFirstLineGist] = useState<string | null>(null);
@@ -70,7 +70,7 @@ export function Home() {
   const { open, close } = useWeb3Modal();
 
   const getProofPayloadResponse =
-    async (githubUsername: string, publicKey: string): Promise<ProofPayloadResponse> => {
+    async (githubHandle: string, publicKey: string): Promise<ProofPayloadResponse> => {
       const baseUrl = process.env.REACT_APP_PROOF_SERVICE_BASE_URL;
 
       if (!baseUrl) {
@@ -89,7 +89,7 @@ export function Home() {
       {
         "action": "create",
         "platform": "github",
-        "identity": githubUsername,
+        "identity": githubHandle,
         "public_key": publicKey
       };
 
@@ -107,7 +107,7 @@ export function Home() {
 
   const getNextIdProofPayload =
     async (
-      githubUsername: string
+      githubHandle: string
     ): Promise<ProofPayloadResponse> => {
 
       const message = 'next.id rocks';
@@ -125,29 +125,29 @@ export function Home() {
       setPublicKey(recoveredPublicKey);
 
       const proofPayloadResponse: ProofPayloadResponse =
-        await getProofPayloadResponse(githubUsername, recoveredPublicKey);
+        await getProofPayloadResponse(githubHandle, recoveredPublicKey);
 
       console.log('recoveredPublicKey', recoveredPublicKey);
       console.log('proofPayloadResponse', proofPayloadResponse);
       return proofPayloadResponse;
     }
 
-    const createGistContent = (
-      signedMessage: string | undefined, proofPayloadResponse: ProofPayloadResponse,githubUsername: string
-    ): { firstLine: string, signedMessageBase64: string, lastLine: string } | null => {
-      if (signedMessage) {
-        const signedMessageBase64 = signedMessage;
-        console.log('signedMessageBase64[', signedMessageBase64);
-        const firstLine = `🎭 Verifying my Github ID @${githubUsername} for @NextDotID.`;
-        const lastLine = 'Next.ID YOUR DIGITAL IDENTITIES IN ONE PLACE';
-        return { firstLine, signedMessageBase64, lastLine };
-      }
-      else {
-        return null;
-      }
+  const createGistContent = (
+    signedMessage: string | undefined, proofPayloadResponse: ProofPayloadResponse, githubHandle: string
+  ): { firstLine: string, signedMessageBase64: string, lastLine: string } | null => {
+    if (signedMessage) {
+      const signedMessageBase64 = signedMessage;
+      console.log('signedMessageBase64[', signedMessageBase64);
+      const firstLine = `🎭 Verifying my Github ID @${githubHandle} for @NextDotID.`;
+      const lastLine = 'Next.ID YOUR DIGITAL IDENTITIES IN ONE PLACE';
+      return { firstLine, signedMessageBase64, lastLine };
     }
+    else {
+      return null;
+    }
+  }
 
-  const buildDataForGist = async (proofPayloadResponse: ProofPayloadResponse,githubUsername: string) => {
+  const buildDataForGist = async (proofPayloadResponse: ProofPayloadResponse, githubHandle: string) => {
     if (!proofPayloadResponse) {
       throw Error('proofPayloadResponse not populated');
     }
@@ -161,31 +161,31 @@ export function Home() {
     console.log('base64String', base64String);
 
     const result: { firstLine: string, signedMessageBase64: string, lastLine: string } | null =
-    createGistContent(base64String, proofPayloadResponse, githubUsername);
+      createGistContent(base64String, proofPayloadResponse, githubHandle);
 
     if (result) {
       const { firstLine, signedMessageBase64, lastLine } = result;
-      
+
 
       setFirstLineGist(firstLine);
-    setSignedMessageBase64Gist(signedMessageBase64);
-    setLastLineGist(lastLine);
+      setSignedMessageBase64Gist(signedMessageBase64);
+      setLastLineGist(lastLine);
     }
   }
-//
+  //
   const next = async () => {
-    if (githubUsername) {
+    if (githubHandle) {
       const proofPayloadResponse: ProofPayloadResponse =
-        await getNextIdProofPayload(githubUsername);
+        await getNextIdProofPayload(githubHandle);
 
       console.log('proofPayloadResponse', proofPayloadResponse);
       setProofPayloadResponse(proofPayloadResponse);
-      await buildDataForGist(proofPayloadResponse,githubUsername);
+      await buildDataForGist(proofPayloadResponse, githubHandle);
     }
   }
 
   const verifyProof = async (
-    githubUsername: string,
+    githubHandle: string,
     publicKey: string,
     numberAtEndGistUrl: string,
     uuid: string
@@ -195,7 +195,7 @@ export function Home() {
       const errrorMessage =
         'Expecting all of these to be populated: ' +
         `proofPayloadResponse: ${proofPayloadResponse}, ` +
-        `githubUsername: ${githubUsername}, publicKey: ${publicKey}`;
+        `githubHandle: ${githubHandle}, publicKey: ${publicKey}`;
 
       throw new Error(errrorMessage);
     }
@@ -220,7 +220,7 @@ export function Home() {
     {
       "action": "create",
       "platform": "twitter",
-      "identity": githubUsername,
+      "identity": githubHandle,
       "public_key": publicKey,
       "proof_location": numberAtEndGistUrl,
       "extra": {},
@@ -241,7 +241,7 @@ export function Home() {
     const baseUrl = process.env.REACT_APP_PROOF_SERVICE_BASE_URL;
     const platform = 'github';
     const exact = true;
-    const url = `${baseUrl}/v1/proof?platform=${platform}&identity=${githubUsername}&exact=${exact}`;
+    const url = `${baseUrl}/v1/proof?platform=${platform}&identity=${githubHandle}&exact=${exact}`;
 
     const config = {
       headers: {
@@ -261,11 +261,11 @@ export function Home() {
 
   const verify = async () => {
     if (gistId) {
-      if (!proofPayloadResponse || !githubUsername || !publicKey) {
+      if (!proofPayloadResponse || !githubHandle || !publicKey) {
         const errrorMessage =
           'Expecting all of these to be populated: ' +
           `proofPayloadResponse: ${proofPayloadResponse}, ` +
-          `githubUsername: ${githubUsername}, publicKey: ${publicKey}`;
+          `githubHandle: ${githubHandle}, publicKey: ${publicKey}`;
 
         throw new Error(errrorMessage);
       }
@@ -273,7 +273,7 @@ export function Home() {
       const uuid = proofPayloadResponse?.uuid;
 
       try {
-        await verifyProof(githubUsername, publicKey, gistId, uuid);
+        await verifyProof(githubHandle, publicKey, gistId, uuid);
         setVerifiedProof(true);
       }
       catch (error) {
@@ -285,7 +285,7 @@ export function Home() {
   }
 
   const clear = () => {
-    setGithubUsername(null);
+    setGithubHandle(null);
     setAvatarStatusResponse(null);
   }
 
@@ -365,7 +365,7 @@ export function Home() {
               placeholder="Gist Number"
               value={gistId} onChange={(event) => setGistId(event.target.value)} />
             &nbsp;&nbsp;
-            <button className={appStyle.button} disabled={githubUsername?.length == 0}
+            <button className={appStyle.button} disabled={githubHandle?.length == 0}
               onClick={verify}>Verify</button>
           </div>
           {getDIDAddedJSX()}
@@ -481,13 +481,13 @@ export function Home() {
         <input
           className={appStyle.input}
           placeholder="Enter: X / Twitter Handle (mandatory)"
-          value={xHandle ? xHandle : ''} onChange={(event) => setXHandle(event.target.value)} />
+          value={githubHandle ? githubHandle : ''} onChange={(event) => setGithubHandle(event.target.value)} />
         &nbsp;&nbsp;
-        <button disabled={xHandle?.length == 0} className={appStyle.button} onClick={getAvatarStatus}>Check if DID exists</button>
+        <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={getAvatarStatus}>Check if DID exists</button>
         &nbsp;&nbsp;
-        <button disabled={xHandle?.length == 0} className={appStyle.button} onClick={next}>Add twitter to DID</button>
+        <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={next}>Add twitter to DID</button>
         &nbsp;&nbsp;
-        <button disabled={xHandle?.length == 0} className={appStyle.button} onClick={clear}>Clear</button>
+        <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={clear}>Clear</button>
       </p>
       {getAvatarStatusJSX()}
       {getTweetJSX()}
