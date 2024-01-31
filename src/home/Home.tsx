@@ -334,19 +334,31 @@ export function Home() {
     }
   }
 
-  const getTweetJSX = () => {
+  const getGithubJSX = () => {
     if (proofPayloadResponse) {
       return (
         <>
           <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
-            Tweet Instructions:
+            Github Instructions:
           </p>
           <div>
-            Send Tweet and Paste URL - IN PROGRESS
+            Generate Gist File - IN PROGRESS
           </div>
           <div style={{ paddingTop: '20px' }}>
-            Please copy the text in the green box below into a tweet and send it:
+            Github has a cut down version of Github repositories called Gist Repositories.
           </div>
+          <div style={{ paddingTop: '20px' }}>
+            See here for further information about Gist Repositories: &nbsp;
+            <a href="">Gist Repositories</a>
+          </div >
+          <div style={{ paddingTop: '20px' }}>
+            Click the Download button to generate a json file which you can add to a gist
+            repository.  Note you will be prompted by your wallet to sign content.
+          </div>
+          <div style={{ paddingTop: '20px' }}>
+            <button className={appStyle.button}>Download json file</button>
+          </div>
+          {/* 
           <div style={{ marginTop: '20px', backgroundColor: 'lightgreen', wordWrap: 'break-word', padding: '10px' }}>
             {firstLineTweet}
             <br />
@@ -354,9 +366,14 @@ export function Home() {
             <br /><br />
             {lastLineTweet}
           </div >
+          */}
+
           <div style={{ paddingTop: '20px' }}>
-            Once you have sent the gist. Click the gist link, and paste the id number in the
-            gist url into the box below and press the Verify Button.
+            Once you have downloaded the json file, create a gist repository and add the json file
+            to it.  Note the name of the json file has the public key in it and the contents of
+            the File contain proof information.  Once the download json file has been added to your
+            gist repository, extract the number in the url of your gist repository and add it in
+            the box below.  Then press the Verify button.
           </div>
           <div style={{ paddingTop: '20px' }}>
             <input
@@ -490,7 +507,7 @@ export function Home() {
         <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={clear}>Clear</button>
       </p>
       {getAvatarStatusJSX()}
-      {getTweetJSX()}
+      {getGithubJSX()}
     </div>
   );
 }
