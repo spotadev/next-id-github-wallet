@@ -452,7 +452,7 @@ export function Home() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>Next.id DID management for adding twitter x handle to Next.id DID</h2>
+      <h2>Next.id DID management for adding Github handle to Next.id DID</h2>
       <h3>Intro</h3>
       <p>
         This code uses Meta Mask so make sure you have installed it.
@@ -472,20 +472,20 @@ export function Home() {
       </p>
       {getConnectWalletJSX()}
 
-      <div style={{ fontWeight: 'bold', paddingTop: '20px' }}>Enter Twitter Handle Instructions:</div>
+      <div style={{ fontWeight: 'bold', paddingTop: '20px' }}>Enter Github Handle Instructions:</div>
       <p>
-        Once you are connected above, enter your X Twitter handle and press a button
+        Once you are connected above, enter your Github handle and press a button
         and press Next.
       </p>
       <p>
         <input
           className={appStyle.input}
-          placeholder="Enter: X / Twitter Handle (mandatory)"
+          placeholder="Enter: Github Handle (mandatory)"
           value={githubHandle ? githubHandle : ''} onChange={(event) => setGithubHandle(event.target.value)} />
         &nbsp;&nbsp;
         <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={getAvatarStatus}>Check if DID exists</button>
         &nbsp;&nbsp;
-        <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={next}>Add twitter to DID</button>
+        <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={next}>Add Github Handle to DID</button>
         &nbsp;&nbsp;
         <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={clear}>Clear</button>
       </p>
