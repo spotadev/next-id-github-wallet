@@ -6,6 +6,7 @@ import appStyle from '../App.module.css';
 import { hashMessage, recoverPublicKey } from 'viem';
 import { signMessage } from '@wagmi/core'
 import exportFromJSON from "export-from-json";
+import { ec as EC } from 'elliptic';
 
 export interface PostContent {
   default: string;
@@ -144,7 +145,7 @@ export function Home() {
       const signature = await signMessage({ message: message });
       const messageHash = hashMessage(message);
 
-      const recoveredPublicKey = await recoverPublicKey({
+      const uncompressedRecoveredPublicKey = await recoverPublicKey({
         hash: messageHash,
         signature: signature
       })
@@ -152,12 +153,31 @@ export function Home() {
       console.log('message', message);
       console.log('signature', signature);
       console.log('messageHash', messageHash);
-      console.log('recoveredPublicKey', recoveredPublicKey);
+      console.log('uncompressedRecoveredPublicKey', uncompressedRecoveredPublicKey);
+
+      // The above public key is a long one that is not in compressed format - we can know that 
+      // for it starts with:  0x04
+      //
+      // The long key looks like:
+      // 0x0492d05e7a3b772333bd9c695900e9703afc797a4afe2a15feba81263311c397b47406fe9b775d6f3b468c0a9f4f68e3b6e332809347b534838ad4e249160551ed
+      //
+      // Compressed public keys start with 0x03 and look like:
+      // 0x03947957e8a8785b6520b96c1c0d70ae9cf59835eec18f9ac920bbf5733413366a
+
+      const uncompressedRecoveredPublicKeyWithoutPrefix = uncompressedRecoveredPublicKey.slice(2);
+
+      const ec = new EC('secp256k1');
+      const pubPoint = ec.keyFromPublic(uncompressedRecoveredPublicKeyWithoutPrefix, 'hex').getPublic();
+
+      // Get the compressed public key as a hex string.
+      const compressedPublicKey = pubPoint.encodeCompressed('hex');
+      console.log('compressedPublicKey', compressedPublicKey);
 
       const data = proofPayloadResponse;
-      const fileName = recoveredPublicKey + '.json';
+      const fileName = '0x' + compressedPublicKey;
       const exportType = exportFromJSON.types.json;
 
+      // This downloads the file
       exportFromJSON({ data, fileName, exportType });
 
       /** 
@@ -167,9 +187,14 @@ export function Home() {
       
       This is mine:
 
-      0x0492d05e7a3b772333bd9c695900e9703afc797a4afe2a15feba81263311c397b47406fe9b775d6f3b468c0a9f4f68e3b6e332809347b534838ad4e249160551ed..json
+      0x0492d05e7a3b772333bd9c695900e9703afc797a4afe2a15feba81263311c397b47406fe9b775d6f3b468c0a9f4f68e3b6e332809347b534838ad4e249160551ed.json
 
-      So there is a problem here which needs resolving
+      After converting my file to compressed looks like:
+
+      0x0392d05e7a3b772333bd9c695900e9703afc797a4afe2a15feba81263311c397b4.json
+
+      The beginning of both the long and short version is the same apart from the prefix so it is
+      hardly worth using the library.
       */
 
       /**
@@ -234,7 +259,7 @@ export function Home() {
     const request =
     {
       "action": "create",
-      "platform": "twitter",
+      "platform": "github",
       "identity": githubHandle,
       "public_key": publicKey,
       "proof_location": numberAtEndGistUrl,
