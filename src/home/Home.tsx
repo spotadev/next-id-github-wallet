@@ -268,7 +268,7 @@ export function Home() {
       catch (error) {
         setVerifiedProof(false);
         setErrorMessage(
-          'the gist did not pass validation. The github username was not added to your next.id DID');
+          'The gist did not pass validation. The github username was not added to your next.id DID');
       }
     }
   }
@@ -332,7 +332,7 @@ export function Home() {
       );
     } else if (errorMessage) {
       return (
-        <div style={{ color: 'red' }}>{errorMessage}</div>
+        <div style={{ color: 'red', paddingTop: '20px' }}>{errorMessage}</div>
       );
     }
     else {
@@ -387,8 +387,11 @@ export function Home() {
             <br /><br />
             In the content box paste the gist content from above.
             <br /><br />
-            Once you have done the above, press the Verify button.  You will be told if the github
-            handle was successfully added to the DID or not.
+            Select the "Create Public Gist" option when creating the gist.
+            <br /><br />
+            Once you have created the gist you will see a number in the url of the gist.
+            Copy that number into "Gist number" box below and press the Verify button.  You will be
+            told if the github handle was successfully added to the DID or not.
           </div>
           <div style={{ paddingTop: '20px' }}>
             <input
