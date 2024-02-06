@@ -5,7 +5,6 @@ import axios from 'axios';
 import appStyle from '../App.module.css';
 import { hashMessage, recoverPublicKey } from 'viem';
 import { signMessage } from '@wagmi/core'
-import exportFromJSON from "export-from-json";
 import { ec as EC } from 'elliptic';
 
 export interface PostContent {
@@ -59,7 +58,9 @@ export function Home() {
   const [githubHandle, setGithubHandle] = useState<string | null>();
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [proofPayloadResponse, setProofPayloadResponse] = useState<ProofPayloadResponse | null>();
-  const [gistId, setGistId] = useState<string>();
+  const [gistFileContent, setGistFileContent] = useState<string | null>();
+  const [gistFileName, setGistFileName] = useState<string | null>();
+  const [gistId, setGistId] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>();
   const [verifiedProof, setVerifiedProof] = useState<boolean>(false);
   const [avatarStatusResponse, setAvatarStatusResponse] = useState<AvatarStatusResponse | null>(null);
@@ -132,21 +133,16 @@ export function Home() {
     }
 
   const next = async () => {
-
     if (githubHandle) {
       const proofPayloadResponse: ProofPayloadResponse =
         await getNextIdProofPayload(githubHandle);
 
       console.log('proofPayloadResponse', proofPayloadResponse);
-
       const postContent = proofPayloadResponse.post_content;
-
       console.log('postContent', postContent);
-
-      const _default: string = postContent['default'];
+      const _default: string = postContent.default;
       console.log('_default', _default);
-      // setGistFileContent(_default);
-
+      setGistFileContent(_default);
       setProofPayloadResponse(proofPayloadResponse);
 
       // Steps - we need to recover the public key so we can get the file name of the json file
@@ -163,22 +159,15 @@ export function Home() {
       console.log('signature', signature);
       console.log('messageHash', messageHash);
       console.log('uncompressedRecoveredPublicKey', uncompressedRecoveredPublicKey);
-
       const uncompressedRecoveredPublicKeyWithoutPrefix = uncompressedRecoveredPublicKey.slice(2);
-
       const ec = new EC('secp256k1');
       const pubPoint = ec.keyFromPublic(uncompressedRecoveredPublicKeyWithoutPrefix, 'hex').getPublic();
 
       // Get the compressed public key as a hex string.
       const compressedPublicKey = pubPoint.encodeCompressed('hex');
       console.log('compressedPublicKey', compressedPublicKey);
-
-      const data = proofPayloadResponse;
-      const fileName = '0x' + compressedPublicKey;
-      const exportType = exportFromJSON.types.json;
-
-      // This downloads the file
-      // exportFromJSON({ data, fileName, exportType });
+      const _gistFileName = '0x' + compressedPublicKey + '.json';
+      setGistFileName(_gistFileName);
     }
   }
 
@@ -189,11 +178,13 @@ export function Home() {
     uuid: string
   ): Promise<void> => {
 
-    if (!proofPayloadResponse) {
+    if (!gistFileContent || !gistFileName || !githubHandle || !publicKey || !proofPayloadResponse) {
       const errrorMessage =
         'Expecting all of these to be populated: ' +
-        `proofPayloadResponse: ${proofPayloadResponse}, ` +
-        `githubHandle: ${githubHandle}, publicKey: ${publicKey}`;
+        `gistFileContent: ${gistFileContent}, ` +
+        `gistFileName: ${gistFileContent}, ` +
+        `githubHandle: ${githubHandle}, publicKey: ${publicKey}` +
+        `proofPayloadResponse: ${proofPayloadResponse}`;
 
       throw new Error(errrorMessage);
     }
@@ -285,6 +276,10 @@ export function Home() {
   const clear = () => {
     setGithubHandle(null);
     setAvatarStatusResponse(null);
+    setGistFileContent(null);
+    setGistFileName(null);
+    setPublicKey(null);
+    setGistId('');
   }
 
   const getConnectWalletJSX = () => {
@@ -299,7 +294,8 @@ export function Home() {
             ${address}
           </div>
           <div style={{ paddingTop: '20px' }}>
-            <button className={appStyle.button} onClick={() => disconnect()}>Disconnect Wallet</button>
+            <button className={appStyle.button}
+              onClick={() => disconnect()}>Disconnect Wallet</button>
           </div >
         </div >
       );
@@ -316,9 +312,11 @@ export function Home() {
           <div>
             Connect to Wallet - PENDING
             &nbsp;&nbsp;
-            <button className={appStyle.button} onClick={() => open()}>Connect / Disconnect Wallet</button>
+            <button className={appStyle.button}
+              onClick={() => open()}>Connect / Disconnect Wallet</button>
             &nbsp;&nbsp;
-            <button className={appStyle.button} onClick={() => open({ view: 'Networks' })}>Select Network</button>
+            <button className={appStyle.button}
+              onClick={() => open({ view: 'Networks' })}>Select Network</button>
           </div>
         </div>
       )
@@ -331,7 +329,6 @@ export function Home() {
         <p>
           Your xhandle has been added to your next.id DID
         </p>
-
       );
     } else if (errorMessage) {
       return (
@@ -344,48 +341,70 @@ export function Home() {
   }
 
   const getShowGistInfoJSX = () => {
-    return (
-      <>
-        <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
-          <h3>Copy / Paste Details:</h3>
-        </p>
-        <div>
-          @todo
-        </div>
-      </>
-    )
+    if (!!gistFileName && !!gistFileContent) {
+      return (
+        <>
+          <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
+            <h3>Copy / Paste Details:</h3>
+          </p>
+          <div>
+            Gist Filename:
+          </div>
+          <div style={{ marginTop: '20px', backgroundColor: 'lightgreen', wordWrap: 'break-word', padding: '10px' }}>
+            <pre>
+              {gistFileName}
+            </pre>
+          </div>
+          <div style={{ paddingTop: '20px' }}>
+            Gist File Content:
+          </div>
+          <div style={{ marginTop: '20px', backgroundColor: 'lightgreen', wordWrap: 'break-word', padding: '10px' }}>
+            <pre style={{ tabSize: '2', wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
+              {gistFileContent}
+            </pre>
+          </div>
+        </>
+      )
+    }
+    else {
+      return '';
+    }
   }
 
   const getVerifyJSX = () => {
-    return (
-      <>
-        <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
-          <h3>Verify Instructions:</h3>
-        </p>
-        <div>
-          Login to github.  Then got to gist.github.com and click the + to add a new gist.
-          <br /><br />
-          In the "gist description box" type something like: "next.id validaion"
-          <br /><br />
-          In the "filename including extension box" copy the gist filename from above.
-          <br /><br />
-          In the content box paste the gist content from above.
-          <br /><br />
-          Once you have done the above, press the Verify button.  You will be told if the github
-          handle was successfully added to the DID or not.
-        </div>
-        <div style={{ paddingTop: '20px' }}>
-          <input
-            style={{ width: '250px' }}
-            className={appStyle.input}
-            placeholder="Gist Number"
-            value={gistId} onChange={(event) => setGistId(event.target.value)} />
-          &nbsp;&nbsp;
-          <button className={appStyle.button} disabled={githubHandle?.length == 0}
-            onClick={verify}>Verify</button>
-        </div>
-      </>
-    );
+    if (!!gistFileName && !!gistFileContent) {
+      return (
+        <>
+          <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
+            <h3>Verify Instructions:</h3>
+          </p>
+          <div>
+            Login to github.  Then got to gist.github.com and click the + to add a new gist.
+            <br /><br />
+            In the "gist description box" type something like: "next.id validaion"
+            <br /><br />
+            In the "filename including extension box" copy the gist filename from above.
+            <br /><br />
+            In the content box paste the gist content from above.
+            <br /><br />
+            Once you have done the above, press the Verify button.  You will be told if the github
+            handle was successfully added to the DID or not.
+          </div>
+          <div style={{ paddingTop: '20px' }}>
+            <input
+              style={{ width: '250px' }}
+              className={appStyle.input}
+              placeholder="Gist Number"
+              value={gistId} onChange={(event) => setGistId(event.target.value)} />
+            &nbsp;&nbsp;
+            <button className={appStyle.button} disabled={githubHandle?.length == 0}
+              onClick={verify}>Verify</button>
+          </div>
+        </>
+      )
+    } else {
+      return '';
+    }
   }
 
   const getGithubJSX = () => {
@@ -403,7 +422,9 @@ export function Home() {
         <div style={{ paddingTop: '20px' }}>
           See here for further information about Gist Repositories:
           <br /><br />
-          <a href="https://www.youtube.com/watch?v=xl004KsPKGE" target="_new">Youtube: What is GitHub Gist? Let's learn!</a>
+          <a href="https://www.youtube.com/watch?v=xl004KsPKGE" target="_new">
+            Youtube: What is GitHub Gist? Let's learn!
+          </a>
           <br /><br />
           <a href="https://gist.github.com/" target="_new">https://gist.github.com/</a>
         </div >
@@ -417,13 +438,16 @@ export function Home() {
           <input
             className={appStyle.input}
             placeholder="Enter: Github Handle (mandatory)"
-            value={githubHandle ? githubHandle : ''} onChange={(event) => setGithubHandle(event.target.value)} />
+            value={githubHandle ? githubHandle : ''}
+            onChange={(event) => setGithubHandle(event.target.value)} />
           &nbsp;
-          <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={getAvatarStatus}>Check if DID exists</button>
+          <button disabled={githubHandle?.length == 0} className={appStyle.button}
+            onClick={getAvatarStatus}>Check if DID exists</button>
           &nbsp;
           <button className={appStyle.button} onClick={next}>Next</button>
           &nbsp;
-          <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={clear}>Clear</button>
+          <button disabled={githubHandle?.length == 0} className={appStyle.button}
+            onClick={clear}>Clear</button>
         </div>
         {getAvatarStatusJSX()}
         {getShowGistInfoJSX()}
@@ -496,9 +520,9 @@ export function Home() {
         <>
           <div style={{ fontWeight: 'bold', paddingBottom: '10px', paddingTop: '20px' }}>DID details:</div>
           <div style={{ backgroundColor: 'lightgreen', color: 'red', padding: '10px' }}>
-            No Avatar / Decentralised(DID) found.
+            No Avatar / Decentralised (DID) found.
             <br /><br />
-            You can go ahead and click the "Add twitter to DID" button
+            You can go ahead and click the "Next" button above.
           </div>
         </>
       );
