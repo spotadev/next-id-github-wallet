@@ -131,13 +131,22 @@ export function Home() {
       return proofPayloadResponse;
     }
 
-  const downloadJsonFile = async () => {
+  const next = async () => {
 
     if (githubHandle) {
       const proofPayloadResponse: ProofPayloadResponse =
         await getNextIdProofPayload(githubHandle);
 
       console.log('proofPayloadResponse', proofPayloadResponse);
+
+      const postContent = proofPayloadResponse.post_content;
+
+      console.log('postContent', postContent);
+
+      const _default: string = postContent['default'];
+      console.log('_default', _default);
+      // setGistFileContent(_default);
+
       setProofPayloadResponse(proofPayloadResponse);
 
       // Steps - we need to recover the public key so we can get the file name of the json file
@@ -155,15 +164,6 @@ export function Home() {
       console.log('messageHash', messageHash);
       console.log('uncompressedRecoveredPublicKey', uncompressedRecoveredPublicKey);
 
-      // The above public key is a long one that is not in compressed format - we can know that 
-      // for it starts with:  0x04
-      //
-      // The long key looks like:
-      // 0x0492d05e7a3b772333bd9c695900e9703afc797a4afe2a15feba81263311c397b47406fe9b775d6f3b468c0a9f4f68e3b6e332809347b534838ad4e249160551ed
-      //
-      // Compressed public keys start with 0x03 and look like:
-      // 0x03947957e8a8785b6520b96c1c0d70ae9cf59835eec18f9ac920bbf5733413366a
-
       const uncompressedRecoveredPublicKeyWithoutPrefix = uncompressedRecoveredPublicKey.slice(2);
 
       const ec = new EC('secp256k1');
@@ -178,49 +178,7 @@ export function Home() {
       const exportType = exportFromJSON.types.json;
 
       // This downloads the file
-      exportFromJSON({ data, fileName, exportType });
-
-      /** 
-      This is nyk's filename: 
-      
-      0x03947957e8a8785b6520b96c1c0d70ae9cf59835eec18f9ac920bbf5733413366a.json
-      
-      This is mine:
-
-      0x0492d05e7a3b772333bd9c695900e9703afc797a4afe2a15feba81263311c397b47406fe9b775d6f3b468c0a9f4f68e3b6e332809347b534838ad4e249160551ed.json
-
-      After converting my file to compressed looks like:
-
-      0x0392d05e7a3b772333bd9c695900e9703afc797a4afe2a15feba81263311c397b4.json
-
-      The beginning of both the long and short version is the same apart from the prefix so it is
-      hardly worth using the library.
-      */
-
-      /**
-          {
-            "post_content": {
-              "default": "{\n\t\"version\": \"1\",\n\t\"comment\": \"Here's an NextID proof of this Github account.\",\n\t\"comment2\": \"To validate, base64.decode the signature, and recover pubkey from it using sign_payload with ethereum personal_sign algo.\",\n\t\"persona\": \"0x0392d05e7a3b772333bd9c695900e9703afc797a4afe2a15feba81263311c397b4\",\n\t\"github_username\": \"javaspeak\",\n\t\"sign_payload\": \"{\\\"action\\\":\\\"create\\\",\\\"created_at\\\":\\\"1706699415\\\",\\\"identity\\\":\\\"javaspeak\\\",\\\"platform\\\":\\\"github\\\",\\\"prev\\\":\\\"sJnG5FiWP7VdvwdBVqRskiHyB1R0PFUiYjsHF9bYBm5kvRz09w0JNkmG/ewnplZ2gjobo4pvOyzZMDXo2TcXIQA=\\\",\\\"uuid\\\":\\\"0d65c2c5-cefa-43bb-8725-6bb54b1baa7f\\\"}\",\n\t\"signature\": \"%SIG_BASE64%\",\n\t\"created_at\": \"1706699415\",\n\t\"uuid\": \"0d65c2c5-cefa-43bb-8725-6bb54b1baa7f\"\n}"
-            },
-            "sign_payload": "{\"action\":\"create\",\"created_at\":\"1706699415\",\"identity\":\"javaspeak\",\"platform\":\"github\",\"prev\":\"sJnG5FiWP7VdvwdBVqRskiHyB1R0PFUiYjsHF9bYBm5kvRz09w0JNkmG/ewnplZ2gjobo4pvOyzZMDXo2TcXIQA=\",\"uuid\":\"0d65c2c5-cefa-43bb-8725-6bb54b1baa7f\"}",
-              "uuid": "0d65c2c5-cefa-43bb-8725-6bb54b1baa7f",
-                "created_at": "1706699415"
-          }
-          */
-
-      /**
-      {
-        "version": "1",
-        "comment": "Here's an NextID proof of this Github account.",
-        "comment2": "To validate, base64.decode the signature, and recover pubkey from it using sign_payload with ethereum personal_sign algo.",
-        "persona": "0x03947957e8a8785b6520b96c1c0d70ae9cf59835eec18f9ac920bbf5733413366a",
-        "github_username": "nykma",
-        "sign_payload": "{\"action\":\"create\",\"created_at\":\"1647329242\",\"identity\":\"nykma\",\"platform\":\"github\",\"prev\":null,\"uuid\":\"ea7279e4-b00c-4447-b784-c8f45895fdc8\"}",
-        "signature": "p4kb/P2uuKCU40zZTs+jk6/ARAO5ZcXErvJU/8oXNVt3+b6SUzpauBW6wNT2N8fwQeXYGgFHCTEGon4qZbK3IQE=",
-        "created_at": "1647329242",
-        "uuid": "ea7279e4-b00c-4447-b784-c8f45895fdc8"
-      }
-       */
+      // exportFromJSON({ data, fileName, exportType });
     }
   }
 
@@ -374,6 +332,51 @@ export function Home() {
     }
   }
 
+  const getShowGistInfoJSX = () => {
+    return (
+      <>
+        <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
+          Copy / Paste Details:
+        </p>
+        <div>
+          @todo
+        </div>
+      </>
+    )
+  }
+
+  const getVerifyJSX = () => {
+    return (
+      <>
+        <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
+          Verify Instructions:
+        </p>
+        <div>
+          Login to github.  Then got to gist.github.com and click the + to add a new gist.
+          <br /><br />
+          In the "gist description box" type something like: "next.id validaion"
+          <br /><br />
+          In the "filename including extension box" copy the gist filename from above.
+          <br /><br />
+          In the content box paste the gist content from above.
+          <br /><br />
+          Once you have done the above, press the Verify button.  You will be told if the github
+          handle was successfully added to the DID or not.
+        </div>
+        <div style={{ paddingTop: '20px' }}>
+          <input
+            style={{ width: '250px' }}
+            className={appStyle.input}
+            placeholder="Gist Number"
+            value={gistId} onChange={(event) => setGistId(event.target.value)} />
+          &nbsp;&nbsp;
+          <button className={appStyle.button} disabled={githubHandle?.length == 0}
+            onClick={verify}>Verify</button>
+        </div>
+      </>
+    );
+  }
+
   const getGithubJSX = () => {
     return (
       <>
@@ -407,29 +410,13 @@ export function Home() {
           &nbsp;
           <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={getAvatarStatus}>Check if DID exists</button>
           &nbsp;
-          <button className={appStyle.button} onClick={downloadJsonFile}>Download json file</button>
+          <button className={appStyle.button} onClick={next}>Next</button>
           &nbsp;
           <button disabled={githubHandle?.length == 0} className={appStyle.button} onClick={clear}>Clear</button>
         </div>
         {getAvatarStatusJSX()}
-        <div style={{ paddingTop: '20px' }}>
-          Once you have downloaded the json file, create a gist repository and add the json file
-          to it.  Note the name of the json file has the public key in it and the contents of
-          the File contain proof information.  Once the download json file has been added to your
-          gist repository, extract the number in the url of your gist repository and add it in
-          the box below.  Then press the Verify button.  You will be told if the github handle
-          was successfully added to the DID or not.
-        </div>
-        <div style={{ paddingTop: '20px' }}>
-          <input
-            style={{ width: '250px' }}
-            className={appStyle.input}
-            placeholder="Gist Number"
-            value={gistId} onChange={(event) => setGistId(event.target.value)} />
-          &nbsp;&nbsp;
-          <button className={appStyle.button} disabled={githubHandle?.length == 0}
-            onClick={verify}>Verify</button>
-        </div>
+        {getShowGistInfoJSX()}
+        {getVerifyJSX()}
         {getDIDAddedJSX()}
       </>
     );
