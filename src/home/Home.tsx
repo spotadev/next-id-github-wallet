@@ -140,23 +140,26 @@ export function Home() {
       console.log('proofPayloadResponse', proofPayloadResponse);
       const postContent = proofPayloadResponse.post_content;
       console.log('postContent', postContent);
-      const _default: string = postContent.default;
+      let _default: string = postContent.default;
       console.log('_default', _default);
-      setGistFileContent(_default);
       setProofPayloadResponse(proofPayloadResponse);
 
       // Steps - we need to recover the public key so we can get the file name of the json file
       const message = proofPayloadResponse.sign_payload;
-      const signature = await signMessage({ message: message });
+      const hexSignature = await signMessage({ message: message });
       const messageHash = hashMessage(message);
 
       const uncompressedRecoveredPublicKey = await recoverPublicKey({
         hash: messageHash,
-        signature: signature
+        signature: hexSignature
       })
 
+      const base64Signature = Buffer.from(hexSignature.slice(2), 'hex').toString('base64');
+      _default = _default.replace('%SIG_BASE64%', base64Signature);
+      setGistFileContent(_default);
+
       console.log('message', message);
-      console.log('signature', signature);
+      console.log('hexSignature', hexSignature);
       console.log('messageHash', messageHash);
       console.log('uncompressedRecoveredPublicKey', uncompressedRecoveredPublicKey);
       const uncompressedRecoveredPublicKeyWithoutPrefix = uncompressedRecoveredPublicKey.slice(2);
@@ -280,6 +283,7 @@ export function Home() {
     setGistFileName(null);
     setPublicKey(null);
     setGistId('');
+    setErrorMessage(null);
   }
 
   const getConnectWalletJSX = () => {
@@ -389,15 +393,15 @@ export function Home() {
             <br /><br />
             Select the "Create Public Gist" option when creating the gist.
             <br /><br />
-            Once you have created the gist you will see a number in the url of the gist.
-            Copy that number into "Gist number" box below and press the Verify button.  You will be
+            Once you have created the gist you will see a hash in the url of the gist.
+            Copy that hash into "Gist hash" box below and press the Verify button.  You will be
             told if the github handle was successfully added to the DID or not.
           </div>
           <div style={{ paddingTop: '20px' }}>
             <input
               style={{ width: '250px' }}
               className={appStyle.input}
-              placeholder="Gist Number"
+              placeholder="Gist Hash"
               value={gistId} onChange={(event) => setGistId(event.target.value)} />
             &nbsp;&nbsp;
             <button className={appStyle.button} disabled={githubHandle?.length == 0}
@@ -411,53 +415,54 @@ export function Home() {
   }
 
   const getGithubJSX = () => {
-    return (
-      <>
-        <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
-          <h3>Enter Github handle Instructions:</h3>
-        </p>
-        <div>
-          Generate Gist File - IN PROGRESS
-        </div>
-        <div style={{ paddingTop: '20px' }}>
-          Github has a cut down version of Github repositories called Gist Repositories.
-        </div>
-        <div style={{ paddingTop: '20px' }}>
-          See here for further information about Gist Repositories:
-          <br /><br />
-          <a href="https://www.youtube.com/watch?v=xl004KsPKGE" target="_new">
-            Youtube: What is GitHub Gist? Let's learn!
-          </a>
-          <br /><br />
-          <a href="https://gist.github.com/" target="_new">https://gist.github.com/</a>
-        </div >
-        <div style={{ paddingTop: '20px' }}>
-          Enter you Github Handle into the box and then first all click the "Check if DID exists"
-          to see if you have already added your github handle to a DID.  If you have not click the
-          Download button to generate a json file which you can add to a gist repository.  Note
-          you will be prompted by your wallet to sign content.
-        </div>
-        <div style={{ paddingTop: '20px' }}>
-          <input
-            className={appStyle.input}
-            placeholder="Enter: Github Handle (mandatory)"
-            value={githubHandle ? githubHandle : ''}
-            onChange={(event) => setGithubHandle(event.target.value)} />
-          &nbsp;
-          <button disabled={githubHandle?.length == 0} className={appStyle.button}
-            onClick={getAvatarStatus}>Check if DID exists</button>
-          &nbsp;
-          <button className={appStyle.button} onClick={next}>Next</button>
-          &nbsp;
-          <button disabled={githubHandle?.length == 0} className={appStyle.button}
-            onClick={clear}>Clear</button>
-        </div>
-        {getAvatarStatusJSX()}
-        {getShowGistInfoJSX()}
-        {getVerifyJSX()}
-        {getDIDAddedJSX()}
-      </>
-    );
+    if (isConnected) {
+      return (
+        <>
+          <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
+            <h3>Enter Github handle Instructions:</h3>
+          </p>
+          <div>
+            Github has a cut down version of Github repositories called Gist Repositories.
+          </div>
+          <div style={{ paddingTop: '20px' }}>
+            See here for further information about Gist Repositories:
+            <br /><br />
+            <a href="https://www.youtube.com/watch?v=xl004KsPKGE" target="_new">
+              Youtube: What is GitHub Gist? Let's learn!
+            </a>
+            <br /><br />
+            <a href="https://gist.github.com/" target="_new">https://gist.github.com/</a>
+          </div >
+          <div style={{ paddingTop: '20px' }}>
+            Enter you Github Handle into the box and then first all click the "Check if DID exists"
+            to see if you have already added your github handle to a DID.  If you have not click the
+            Download button to generate a json file which you can add to a gist repository.  Note
+            you will be prompted by your wallet to sign content.
+          </div>
+          <div style={{ paddingTop: '20px' }}>
+            <input
+              className={appStyle.input}
+              placeholder="Enter: Github Handle (mandatory)"
+              value={githubHandle ? githubHandle : ''}
+              onChange={(event) => setGithubHandle(event.target.value)} />
+            &nbsp;
+            <button disabled={githubHandle?.length == 0} className={appStyle.button}
+              onClick={getAvatarStatus}>Check if DID exists</button>
+            &nbsp;
+            <button className={appStyle.button} onClick={next}>Next</button>
+            &nbsp;
+            <button disabled={githubHandle?.length == 0} className={appStyle.button}
+              onClick={clear}>Clear</button>
+          </div>
+          {getAvatarStatusJSX()}
+          {getShowGistInfoJSX()}
+          {getVerifyJSX()}
+          {getDIDAddedJSX()}
+        </>
+      )
+    } else {
+      return '';
+    }
   }
 
   const getAvatarStatusJSX = () => {
