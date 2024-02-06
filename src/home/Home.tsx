@@ -290,25 +290,36 @@ export function Home() {
   const getConnectWalletJSX = () => {
     if (isConnected) {
       return (
-        <>
-          <div style={{ fontWeight: 'bold', paddingTop: '20px' }}>Wallet Address:</div>
+        <div>
+          <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
+            <h3>Wallet Instructions</h3>
+          </p>
+          <div style={{ fontWeight: 'bold' }}>Wallet Address:</div>
           <div style={{ paddingTop: '20px' }}>
             ${address}
           </div>
           <div style={{ paddingTop: '20px' }}>
             <button className={appStyle.button} onClick={() => disconnect()}>Disconnect Wallet</button>
           </div >
-        </>
+        </div >
       );
     }
     else {
       return (
         <div>
-          Connect to Wallet - PENDING
-          &nbsp;&nbsp;
-          <button className={appStyle.button} onClick={() => open()}>Connect / Disconnect Wallet</button>
-          &nbsp;&nbsp;
-          <button className={appStyle.button} onClick={() => open({ view: 'Networks' })}>Select Network</button>
+          <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
+            <h3>Wallet Instructions</h3>
+          </p>
+          <p>
+            Click on the button below to connect your Meta Mask wallet:
+          </p>
+          <div>
+            Connect to Wallet - PENDING
+            &nbsp;&nbsp;
+            <button className={appStyle.button} onClick={() => open()}>Connect / Disconnect Wallet</button>
+            &nbsp;&nbsp;
+            <button className={appStyle.button} onClick={() => open({ view: 'Networks' })}>Select Network</button>
+          </div>
         </div>
       )
     }
@@ -336,7 +347,7 @@ export function Home() {
     return (
       <>
         <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
-          Copy / Paste Details:
+          <h3>Copy / Paste Details:</h3>
         </p>
         <div>
           @todo
@@ -349,7 +360,7 @@ export function Home() {
     return (
       <>
         <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
-          Verify Instructions:
+          <h3>Verify Instructions:</h3>
         </p>
         <div>
           Login to github.  Then got to gist.github.com and click the + to add a new gist.
@@ -381,7 +392,7 @@ export function Home() {
     return (
       <>
         <p style={{ fontWeight: 'bold', paddingTop: '20px' }}>
-          Github Instructions:
+          <h3>Enter Github handle Instructions:</h3>
         </p>
         <div>
           Generate Gist File - IN PROGRESS
@@ -512,10 +523,6 @@ export function Home() {
         The README.md file has instructions on how to do the above. It also has instructions
         on how to configure your .env.local file and how do get an ID needed for connecting
         to your wallet.
-      </p>
-      <h3>Instructions</h3>
-      <p>
-        Click on the button below to connect your Meta Mask wallet:
       </p>
       {getConnectWalletJSX()}
       {getGithubJSX()}
