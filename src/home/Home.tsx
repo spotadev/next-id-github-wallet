@@ -331,7 +331,7 @@ export function Home() {
     if (verifiedProof) {
       return (
         <p>
-          Your xhandle has been added to your next.id DID
+          Your github handle has been added to your next.id DID
         </p>
       );
     } else if (errorMessage) {
