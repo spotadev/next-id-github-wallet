@@ -63,6 +63,7 @@ export function Home() {
   const [gistId, setGistId] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>();
   const [verifiedProof, setVerifiedProof] = useState<boolean>(false);
+  const [isCopySuccess, setCopySuccess] = useState(false);
   const [avatarStatusResponse, setAvatarStatusResponse] = useState<AvatarStatusResponse | null>(null);
 
   const { address, isConnected } = useAccount();
@@ -345,6 +346,21 @@ export function Home() {
   }
 
   const getShowGistInfoJSX = () => {
+    const handleCopyClick = () => {
+      if (gistFileName) {
+        // Create a temporary textarea element to copy text
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = gistFileName;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        tempTextArea.setSelectionRange(0, 99999); // For mobile devices
+        document.execCommand('copy');
+        document.body.removeChild(tempTextArea);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 1500);
+      }
+  };
+    
     if (!!gistFileName && !!gistFileContent) {
       return (
         <>
@@ -354,10 +370,13 @@ export function Home() {
           <div>
             Gist Filename:
           </div>
-          <div style={{ marginTop: '20px', backgroundColor: 'lightgreen', wordWrap: 'break-word', padding: '10px' }}>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', backgroundColor: 'lightgreen', wordWrap: 'break-word', padding: '10px' }}>
             <pre>
               {gistFileName}
             </pre>
+            <button style={{ marginLeft: '10px', cursor: 'pointer' }} onClick={handleCopyClick}>
+            {isCopySuccess ? 'Copied!' : 'Copy'}
+          </button>
           </div>
           <div style={{ paddingTop: '20px' }}>
             Gist File Content:
