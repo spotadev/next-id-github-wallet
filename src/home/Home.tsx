@@ -346,20 +346,18 @@ export function Home() {
   }
 
   const getShowGistInfoJSX = () => {
-    const handleCopyClick = () => {
-      if (gistFileName) {
-        // Create a temporary textarea element to copy text
-        const tempTextArea = document.createElement('textarea');
-        tempTextArea.value = gistFileName;
-        document.body.appendChild(tempTextArea);
-        tempTextArea.select();
-        tempTextArea.setSelectionRange(0, 99999); // For mobile devices
-        document.execCommand('copy');
-        document.body.removeChild(tempTextArea);
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), 1500);
-      }
-  };
+    const handleCopyClick = (content: string) => {
+      // Create a temporary textarea element to copy text
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = content;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      tempTextArea.setSelectionRange(0, 99999); // For mobile devices
+      document.execCommand('copy');
+      document.body.removeChild(tempTextArea);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 1500);
+    };
     
     if (!!gistFileName && !!gistFileContent) {
       return (
@@ -374,18 +372,29 @@ export function Home() {
             <pre>
               {gistFileName}
             </pre>
-            <button style={{ marginLeft: '10px', cursor: 'pointer' }} onClick={handleCopyClick}>
-            {isCopySuccess ? 'Copied!' : 'Copy'}
-          </button>
+            <button style={{ marginLeft: '10px', cursor: 'pointer' }} onClick={() => handleCopyClick(gistFileName)}>
+              {isCopySuccess ? 'Copied!' : 'Copy'}
+            </button>
+          
           </div>
-          <div style={{ paddingTop: '20px' }}>
-            Gist File Content:
-          </div>
-          <div style={{ marginTop: '20px', backgroundColor: 'lightgreen', wordWrap: 'break-word', padding: '10px' }}>
-            <pre style={{ tabSize: '2', wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
-              {gistFileContent}
-            </pre>
-          </div>
+          <div style={{ paddingTop: '20px', display: 'flex', flexDirection: 'column' }}>
+  <div style={{ position: 'relative', marginBottom: '10px', backgroundColor: 'lightgreen', wordWrap: 'break-word', padding: '10px' }}>
+    <div>
+      Gist File Content:
+    </div>
+    <pre style={{ tabSize: '2', wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
+      {gistFileContent}
+    </pre>
+    <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+      <button className={appStyle.button} onClick={() => handleCopyClick(gistFileContent)}>
+        {isCopySuccess ? 'Copied!' : 'Copy'}
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
         </>
       )
     }
