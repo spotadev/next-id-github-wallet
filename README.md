@@ -10,7 +10,7 @@ This is example code showing how to associate a github social media handle with 
 
 Note next.id calls your DID an avatar.
 
-This example uses Meta Mask wallet to do the required signing so that the user does not need to 
+This example uses Meta Mask wallet to do the required signing so that the user does not need to
 manage their own private key.
 
 The public key is recovered from meta mask using the viem library.
@@ -45,7 +45,7 @@ So the user steps are:
 
 Copy env.local.sample to env.local
 
-Go to:  
+Go to:
 
   https://cloud.walletconnect.com/sign-in
 
@@ -75,7 +75,7 @@ In meta mask:
   Click Add Network
 
 Configure as follows:
- 
+
     Network Name:        Polygon Mumbai Testnet
     New RPC Url:         https://rpc.ankr.com/polygon_mumbai
     Chain ID:            80001
@@ -92,6 +92,14 @@ Open in browser:
 
   http://localhost:3000/
 
+### Build and run docker image
+
+```sh
+docker build -t next-id-github-wallet:latest .
+docker run --rm -p8080:80 next-id-github-wallet:latest
+
+# Visit http://127.0.0.1:8080
+```
 
 ### Browser instructions
 
@@ -120,7 +128,7 @@ You can contact JD by email:
 
 ### Via Issue on Github
 
-JD's github handle is: 
+JD's github handle is:
 
 javaspeak
 
@@ -149,7 +157,7 @@ The social media platform has 2 variants:
 
 ---
 
-You can also get involved with UTU Trust.  UTU Trust has bounty programmes for involving the 
+You can also get involved with UTU Trust.  UTU Trust has bounty programmes for involving the
 community.
 
 ---
